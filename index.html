@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>AEM ID Generator</title>
+    <style>
+        body {
+            background: linear-gradient(60deg, #00863B 40%, #BCCF00 60%);
+            font-family: "Poppins", Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        h1 {
+            color: white;
+            font-size: 24px;
+            text-align: center;
+            padding: 20px;
+            font-weight: bold;
+        }
+
+        .form-container {
+            background-color: white;
+            padding: 20px;
+            width: 500px;
+            margin: 20px auto;
+            border-radius: 10px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            width: 200px;
+            font-weight: bold;
+        }
+
+        select,
+        input[type="text"],
+        input[type="number"] {
+            width: 300px;
+            margin-bottom: 10px;
+            padding: 5px;
+        }
+
+        textarea {
+            height: 200px;
+            width: 100%;
+            margin-top: 10px;
+            resize: vertical;
+            overflow: auto;
+        }
+
+        .button-container {
+            display: flex;
+            margin-top: 10px;
+        }
+
+        .button-container button {
+            margin-right: 10px;
+        }
+
+        .footer {
+            font-family: "Poppins", Arial, sans-serif;
+            font-size: 14px;
+            font-weight: 300;
+            text-align: center;
+            padding: 10px;
+            background-color: #f5f5f5;
+            border-top: 1px solid #ddd;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>AEM ID Generator</h1>
+    <div class="form-container">
+        <label for="brand">Brand:</label>
+        <select id="brand">
+            <option value="lly-retail">Lloyds Retail</option>
+            <option value="hal-retail">Halifax</option>
+            <option value="bos-retail">BoS Retail</option>
+            <option value="mbn-retail">MBNA</option>
+        </select>
+
+        <label for="product-type">Product Type:</label>
+        <select id="product-type">
+            <option value="batr">BATR</option>
+            <option value="bins">BINS</option>
+            <option value="card">CARD</option>
+            <option value="carf">CARF</option>
+            <option value="club">CLUB</option>
+            <option value="cura">CURA</option>
+            <option value="hins">HINS</option>
+            <option value="intp">INTP</option>
+            <option value="intw">INTW</option>
+            <option value="invs">INVS</option>
+            <option value="lins">LINS</option>
+            <option value="loan">LOAN</option>
+            <option value="mass">MASS</option>
+            <option value="mins">MINS</option>
+            <option value="mort">MORT</option>
+            <option value="over">OVER</option>
+            <option value="pban">PBAN</option>
+            <option value="pcac">PCAC</option>
+            <option value="pens">PENS</option>
+            <option value="ppls">PPLS</option>
+            <option value="serv">SERV</option>
+            <option value="test">TEST</option>
+            <option value="trav">TRAV</option>
+            <option value="ukwe">UKWE</option>
+        </select>
+
+        <label for="asset-type">Asset Type:</label>
+        <select id="asset-type">
+            <option value="bpt">BPT</option>
+            <option value="asm">ASM</option>
+            <option value="ban">BAN</option>
+            <option value="dpp">DPP</option>
+            <option value="eal">EAL</option>
+            <option value="lnk">LNK</option>
+            <option value="lob">LOB</option>
+            <option value="mrc">MRC</option>
+            <option value="nvt">NVT</option>
+            <option value="phl">PHL</option>
+            <option value="pom">POM</option>
+            <!-- Add more options here -->
+        </select>
+
+        <label for="device-type">Device Type:</label>
+        <select id="device-type">
+            <option value="app">App</option>
+            <option value="dkp">Desktop</option>
+            <option value="mbr">Mobile browser</option>
+        </select>
+
+        <label for="placement-type">Placement Type:</label>
+        <select id="placement-type">
+            <option value="s">Static</option>
+            <option value="a">Animated</option>
+            <option value="v">Video</option>
+        </select>
+
+        <label for="tokens">Tokens:</label>
+        <select id="tokens">
+            <option value="tn">Non-Tokenized</option>
+            <option value="ty">Tokenized</option>
+        </select>
+
+        <label for="rated">Rated:</label>
+        <select id="rated">
+            <option value="rn">Rateless</option>
+            <option value="ry">Rated</option>
+        </select>
+
+        <label for="purpose">Purpose:</label>
+        <select id="purpose">
+            <option value="cnv">Conversion</option>
+            <option value="eng">Engagement</option>
+            <option value="lrm">Legal Regulatory Mandatory</option>
+            <option value="hic">Mandatory</option>
+            <option value="voi">High Impact Change</option>
+            <option value="sup">Customer Support</option>
+            <option value="tst">Testing</option>
+        </select>
+
+        <label for="sub-product">Sub Product:</label>
+        <input type="text" id="sub-product" />
+
+        <label for="campaign-name">Campaign Name:</label>
+        <input type="text" id="campaign-name" />
+
+        <label for="unique-id">Unique ID:</label>
+        <input type="text" id="unique-id" maxlength="9" />
+
+        <label for="version">Version:</label>
+        <input type="number" id="version" min="1" max="9" value="1" />
+
+        <div class="button-container">
+            <button onclick="generateAEMIDs()">Generate IDs</button>
+            <button onclick="copyAEMIDs()">Copy IDs</button>
+            <button onclick="deleteLastID()">Delete Last ID</button>
+            <button onclick="resetForm()">Reset</button>
+        </div>
+
+        <textarea id="generated-ids" readonly></textarea>
+    </div>
+
+    <div class="footer">
+        Page created by Robert Dunn in the POC Operations Team
+    </div>
+
+    <script>
+        // Array to store generated IDs
+        let generatedIDArray = [];
+
+        function generateAEMIDs() {
+            const brandSelect = document.getElementById("brand");
+            const productTypeSelect = document.getElementById("product-type");
+            const assetTypeSelect = document.getElementById("asset-type");
+            const deviceTypeSelect = document.getElementById("device-type");
+            const placementTypeSelect = document.getElementById("placement-type");
+            const tokensSelect = document.getElementById("tokens");
+            const ratedSelect = document.getElementById("rated");
+            const purposeSelect = document.getElementById("purpose");
+            const subProductInput = document.getElementById("sub-product");
+            const campaignNameInput = document.getElementById("campaign-name");
+            const uniqueIDInput = document.getElementById("unique-id");
+            const versionInput = document.getElementById("version");
+
+            const brand = brandSelect.value;
+            const productType = productTypeSelect.value;
+            const assetType = assetTypeSelect.value;
+            const deviceType = deviceTypeSelect.value;
+            const placementType = placementTypeSelect.value;
+            const tokens = tokensSelect.value;
+            const rated = ratedSelect.value;
+            const purpose = purposeSelect.value;
+            const subProduct = subProductInput.value;
+            const campaignName = campaignNameInput.value;
+            const uniqueID = uniqueIDInput.value;
+            const version = versionInput.value;
+
+            const generatedIDsTextArea = document.getElementById("generated-ids");
+            const existingIDs = generatedIDsTextArea.value;
+
+            let generatedIDs = "";
+            for (let i = 1; i <= version; i++) {
+                const id = `core-leads/${brand}/${productType}/${assetType}/${deviceType}/${placementType}/${tokens}/${rated}/${purpose}/${subProduct}-${campaignName}-${uniqueID}${i}`;
+
+                // Check if ID already exists
+                if (!generatedIDArray.includes(id)) {
+                    generatedIDs += id + "\n";
+                    generatedIDArray.push(id); // Add ID to array
+                }
+            }
+
+            generatedIDsTextArea.value = existingIDs + generatedIDs;
+
+            // Restore field values
+            subProductInput.value = subProduct;
+            campaignNameInput.value = campaignName;
+            uniqueIDInput.value = uniqueID;
+            versionInput.value = version;
+        }
+
+        function copyAEMIDs() {
+            const generatedIDs = document.getElementById("generated-ids").value;
+
+            if (generatedIDs) {
+                navigator.clipboard.writeText(generatedIDs).then(() => {
+                    alert("IDs copied to clipboard!");
+                });
+            }
+        }
+        function resetForm() {
+            // Clear generated IDs
+            generatedIDArray = [];
+            document.getElementById("generated-ids").value = "";
+
+            // Reset form fields
+            document.getElementById("sub-product").value = "";
+            document.getElementById("campaign-name").value = "";
+            document.getElementById("unique-id").value = "";
+            document.getElementById("version").value = 1;
+        }
+        function deleteLastID() {
+        const generatedIDsTextArea = document.getElementById("generated-ids");
+        const existingIDs = generatedIDsTextArea.value;
+
+        if (existingIDs) {
+            // Split the existing IDs into an array
+            const idsArray = existingIDs.trim().split("\n");
+
+            // Remove the last ID from the array
+            const lastID = idsArray.pop();
+
+            // Update the generated IDs textarea
+            generatedIDsTextArea.value = idsArray.join("\n");
+
+            // Remove the last ID from the generatedIDArray
+            generatedIDArray.splice(generatedIDArray.indexOf(lastID), 1);
+        }
+    }
+    </script>
+
+
+</body>
+
+</html>
