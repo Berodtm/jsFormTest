@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Target Mapping Submission Form</title>
+    <script defer src="./js/formSubmit.js"></script>
+  </head>
+  <body>
+    <h1>Target Mapping Form pre build v1</h1>
+    <p>core-leads/hal-retail/hins/app/asm/s/ty/ry/cnv/halappasm-contents-only-bau-00623patx1</p>
+    <p>core-leads/hal-retail/hins/app/bpt/s/tn/rn/cnv/halappasm-contents-only-bau-00623patx1</p>
+    <p>core-leads/hal-retail/hins/app/asm/s/tn/ry/cnv/halappasm-contents-only-bau-00623patx1</p>
+    <p>004HALHI049_PROD_HAL_HINS_APP</p>
+    <p>004HALHI049_PROD_HAL_HINS_APP_AB_rotational</p>
+    <p>004HALHI049_PROD_HAL_HINS_APP_AB</p>
+
+    <div id="form-container" class="form-container">
+      <form>
+        <div id="form-input">
+          <label for="aem-id"></label>
+          <input type="text" id="aem-id" placeholder="AEM ID" />
+        </div>
+
+        <div id="asm-options" style="display: none">
+          <label for="asm-options"></label> ASM locations:<br />
+          <label
+            ><input type="checkbox" id="location1" value="Location 1" /> Account
+            Overview | ASM | ASM1</label
+          ><br />
+          <label
+            ><input type="checkbox" id="location2" value="Location 2" /> Account
+            Overview | ASM | ASM2</label
+          ><br />
+          <label
+            ><input type="checkbox" id="location3" value="Location 3" /> Account
+            Overview | ASM | ASM3</label
+          >
+        </div>
+        <div id="form-input">
+          <label for="lead-id"></label>
+          <input type="text" id="lead-id" placeholder="Lead ID" />
+        </div>
+        <div id="form-input">
+          <label for="objective-id"></label>
+          <input type="text" id="objective-id" placeholder="Objective" />
+        </div>
+        <!-- dummy input
+        <div id="">
+            <label for=""></label>
+            <input type="text" id="" placeholder="">
+        </div> -->
+      </form>
+    </div>
+    <button id="submit">Submit</button>
+    <div id="form-output">
+      <pre></pre>
+    </div>
+  </body>
+</html>
