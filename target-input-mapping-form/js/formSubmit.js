@@ -1,6 +1,6 @@
 // Define the LeadSubmission class
 class LeadSubmission {
-  constructor(aemId, leadId, objective, asmLocations) {
+  constructor(aemId, leadId, objective, asmLocations, audienceRefinementId) {
     this.aemId = aemId;
     this.leadId = leadId;
     this.objective = objective;
@@ -12,6 +12,7 @@ class LeadSubmission {
     this.tokenised = this.determineTokenised(aemId);
     this.rated = this.determineRated(aemId);
     this.measuredBy = this.determineMeasuredBy(leadId);
+    this.audienceRefinement = audienceRefinementId;
   }
 
   determineType(aemId) {
@@ -20,7 +21,7 @@ class LeadSubmission {
     } else if (aemId.includes("/app/")) {
       return "App";
     } else if (aemId.includes("/mbr/")) {
-      return "Mobile Browser"
+      return "Mobile Browser";
     } else {
       return "device type Unknown";
     }
@@ -74,24 +75,30 @@ class LeadSubmission {
   }
   determineTokenised(aemId) {
     if (aemId.includes("/ty/")) {
-      return "Yes - Tokenised"
+      return "Yes - Tokenised";
     } else {
-      return "No - Non-tokenised"
+      return "No - Non-tokenised";
     }
   }
   determineRated(aemId) {
     if (aemId.includes("/ry/")) {
-      return "Yes: Rated"
+      return "Yes: Rated";
     } else {
-      return "No: No rates"
+      return "No: No rates";
     }
   }
   determineMeasuredBy(leadId) {
     if (leadId.includes("rotational")) {
-      return "Additional Metrics"
+      return "Additional Metrics";
     } else {
-      return "Page views and engagement"
+      return "Page views and engagement";
     }
+  }
+  determineAudienceRefinement(leadId) {
+    // Assuming the audience refinement suffix is already appended to the leadId
+    let baseId = leadId.split("_")[0];
+    let refinementSuffix = leadId.substring(baseId.length); // Get the part after the baseId
+    return baseId + refinementSuffix;
   }
 }
 
@@ -100,54 +107,46 @@ let TargetMappingInstancesArray = [];
 const addLeadSubmission = (e) => {
   e.preventDefault();
 
-  // Get the values from the form
   let aemIdValue = document.getElementById("aem-id").value.toLowerCase();
   let leadIdValue = document.getElementById("lead-id").value.toLowerCase();
-  let objective = document.getElementById('objective-id').value.toLowerCase();
+  let objective = document.getElementById("objective-id").value.toLowerCase();
 
   if (!aemIdValue || !leadIdValue || !objective) {
     alert("Fill in the form");
     return;
   }
 
-  // Check for selected ASM locations
   let asmLocations = [];
-  if (aemIdValue.includes("/asm/")) {
-    if (document.getElementById("location1").checked)
-      asmLocations.push("Account Overview | ASM | ASM1");
-    if (document.getElementById("location2").checked)
-      asmLocations.push("Account Overview | ASM | ASM2");
-    if (document.getElementById("location3").checked)
-      asmLocations.push("Account Overview | ASM | ASM3");
-  }
+  if (document.getElementById("location1").checked)
+    asmLocations.push("Account Overview | ASM | ASM1");
+  if (document.getElementById("location2").checked)
+    asmLocations.push("Account Overview | ASM | ASM2");
+  if (document.getElementById("location3").checked)
+    asmLocations.push("Account Overview | ASM | ASM3");
 
-  // Create a new instance of LeadSubmission with ASM locations
-  let newLeadSubmission = new LeadSubmission(
-    aemIdValue,
-    leadIdValue,
-    objective,
-    asmLocations
-  );
+  // Create a LeadSubmission instance for each ASM location
+  asmLocations.forEach((location, index) => {
+    let audienceRefinementId = leadIdValue.split("_")[0] + "_p" + (index + 1); // Unique ID for audience refinement
+    let newLeadSubmission = new LeadSubmission(
+      aemIdValue,
+      leadIdValue,
+      objective,
+      [location], // Pass only the current location
+      audienceRefinementId // Pass the unique audience refinement ID
+    );
+    TargetMappingInstancesArray.push(newLeadSubmission);
+  });
 
-  // Add it to the array
-  TargetMappingInstancesArray.push(newLeadSubmission);
-
-  // Reset the form
   document.querySelector("#form-container form").reset();
-
-  // For display
   console.warn("Added", { TargetMappingInstancesArray });
   let pre = document.querySelector("#form-output pre");
   pre.textContent = "\n" + JSON.stringify(TargetMappingInstancesArray, "\t", 2);
 
-  // Saving to local storage
-  // localStorage.setItem(
-  //   "leadInstances",
-  //   JSON.stringify(TargetMappingInstancesArray)
-  // );
   const asmOptions = document.getElementById("asm-options");
   asmOptions.style.display = "none";
 };
+
+document.getElementById("submit").addEventListener("click", addLeadSubmission);
 
 //event listeners
 
@@ -161,9 +160,6 @@ document.getElementById("aem-id").addEventListener("input", function (e) {
     asmOptions.style.display = "none";
   }
 });
-
-
-
 
 // For display
 // let displayContent = '';
