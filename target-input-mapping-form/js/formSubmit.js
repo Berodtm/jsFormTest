@@ -19,7 +19,8 @@ class LeadSubmission {
     leadId,
     objective,
     asmLocations,
-    audienceRefinementId
+    audienceRefinementId,
+    duration
   ) {
     this.name = name;
     this.aemId = aemId;
@@ -34,6 +35,7 @@ class LeadSubmission {
     this.rated = this.determineRated(aemId);
     this.measuredBy = this.determineMeasuredBy(leadId);
     this.audienceRefinement = audienceRefinementId;
+    this.duration = duration;
   }
 
   determineType(aemId) {
@@ -82,17 +84,39 @@ class LeadSubmission {
   }
   determineMappingLocation(aemId, asmLocations) {
     let placementType = this.getPlacementType(aemId);
-    let mappingLocations;
+    let mappingLocation;
 
     if (asmLocations.length > 0) {
-      // ASM case
-      mappingLocations = asmLocations.join(", ");
+      mappingLocation = asmLocations.join(", ");
     } else {
-      // Non-ASM case
-      mappingLocations = "Default Reference"; // Replace with your specific non-ASM reference
+      // Non-ASM case - determine the mapping location based on product, type, and placement
+      mappingLocation = this.getNonAsmMappingLocation(aemId);
     }
 
-    return placementType + " | " + mappingLocations;
+    return mappingLocation;
+  }
+
+  getNonAsmMappingLocation(aemId) {
+    // Define a map of product-type-placement combinations to references
+    const referenceMap = {
+      "hins-app-bpt": "APP|Logon|BPT",
+      // Add more combinations here as needed
+      "hins-app-lob": "APP|Logout|LOB",
+      "hins-mbr-bpt": "MBR|Logon|BPT",
+      "hins-dkp-bpt": "DKP|Logon|BPT, DKP|Logoff|BPT",
+      // 'product-type-placement': 'Reference for PRODUCT TYPE PLACEMENT',
+    };
+
+    // Extract product, type, and placement from the aemId
+    const productMatch = aemId.match(/\/hins\//) ? "hins" : "";
+    const typeMatch = this.type.toLowerCase(); // 'app', 'dkp', 'mbr', etc.
+    const placementMatch = this.placement.toLowerCase(); // 'lnk', 'asm', 'bpt', etc.
+
+    // Create the key to search in the reference map
+    const key = `${productMatch}-${typeMatch}-${placementMatch}`;
+
+    // Return the corresponding reference or a default value
+    return referenceMap[key] || "Default Reference";
   }
   getPlacementType(aemId) {
     if (aemId.includes("/dkp/")) {
@@ -150,6 +174,7 @@ const addLeadSubmission = (e) => {
   let aemIdValue = document.getElementById("aem-id").value.toLowerCase();
   let leadIdValue = document.getElementById("lead-id").value.toLowerCase();
   let objective = document.getElementById("objective-id").value.toLowerCase();
+  let durationValue = document.getElementById("duration-id").value;
 
   if (!nameValue || !aemIdValue || !leadIdValue || !objective) {
     alert("Remember to complete in all the fields.");
@@ -160,11 +185,11 @@ const addLeadSubmission = (e) => {
     // ASM specific logic
 
     if (document.getElementById("location1").checked)
-      asmLocations.push("Account Overview | ASM | ASM1");
+      asmLocations.push("APP|Account Overview|ASM|ASM1");
     if (document.getElementById("location2").checked)
-      asmLocations.push("Account Overview | ASM | ASM2");
+      asmLocations.push("APP|Account Overview|ASM|ASM2");
     if (document.getElementById("location3").checked)
-      asmLocations.push("Account Overview | ASM | ASM3");
+      asmLocations.push("APP|Account Overview|ASM|ASM3");
 
     asmLocations.forEach((location, index) => {
       let audienceRefinementId = leadIdValue.split("_")[0] + "_p" + (index + 1);
@@ -174,7 +199,8 @@ const addLeadSubmission = (e) => {
         leadIdValue,
         objective,
         [location], // Pass a single location as an array
-        audienceRefinementId
+        audienceRefinementId,
+        durationValue
       );
       TargetMappingInstancesArray.push(newLeadSubmission);
     });
@@ -187,7 +213,8 @@ const addLeadSubmission = (e) => {
       leadIdValue,
       objective,
       [], // Pass an empty array for non-ASM cases
-      audienceRefinementId
+      audienceRefinementId,
+      durationValue
     );
     TargetMappingInstancesArray.push(newLeadSubmission);
   }
