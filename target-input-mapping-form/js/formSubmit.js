@@ -1,6 +1,27 @@
+document.addEventListener("DOMContentLoaded", function () {
+  // Retrieve the name from localStorage
+  const savedName = localStorage.getItem("userName");
+  if (savedName) {
+    document.getElementById("user-name").value = savedName;
+  }
+});
+
+document.getElementById("user-name").addEventListener("input", function (e) {
+  // Save the name to localStorage whenever it changes
+  localStorage.setItem("userName", e.target.value);
+});
+
 // Define the LeadSubmission class
 class LeadSubmission {
-  constructor(aemId, leadId, objective, asmLocations, audienceRefinementId) {
+  constructor(
+    name,
+    aemId,
+    leadId,
+    objective,
+    asmLocations,
+    audienceRefinementId
+  ) {
+    this.name = name;
     this.aemId = aemId;
     this.leadId = leadId;
     this.objective = objective;
@@ -29,23 +50,25 @@ class LeadSubmission {
 
   determinePlacement(aemId) {
     if (aemId.includes("/lnk/")) {
-      return "lnk";
+      return "lnk".toUpperCase();
     } else if (aemId.includes("/asm/")) {
-      return "asm";
+      return "asm".toUpperCase();
     } else if (aemId.includes("/bpt/")) {
-      return "bpt";
+      return "bpt".toUpperCase();
     } else if (aemId.includes("/til/")) {
-      return "til";
+      return "til".toUpperCase();
     } else if (aemId.includes("/eal/")) {
-      return "eal";
+      return "eal".toUpperCase();
     } else if (aemId.includes("/fea/")) {
-      return "fea";
+      return "fea".toUpperCase();
     } else if (aemId.includes("/nvt/")) {
-      return "nvt";
+      return "nvt".toUpperCase();
     } else if (aemId.includes("/phl/")) {
-      return "phl";
+      return "phl".toUpperCase();
     } else if (aemId.includes("/lob/")) {
-      return "lob";
+      return "lob".toUpperCase();
+    } else if (aemId.includes("/pom/")) {
+      return "pom".toUpperCase();
     } else {
       return "Placement Unknown";
     }
@@ -58,12 +81,28 @@ class LeadSubmission {
     }
   }
   determineMappingLocation(aemId, asmLocations) {
-    if (aemId.includes("/asm/") && asmLocations.length > 0) {
-      return "MBOX: " + asmLocations.join(", ");
-    } else if (aemId.includes("/bpt/")) {
-      return "bpt ref";
+    let placementType = this.getPlacementType(aemId);
+    let mappingLocations;
+
+    if (asmLocations.length > 0) {
+      // ASM case
+      mappingLocations = asmLocations.join(", ");
     } else {
-      return "ref Unknown";
+      // Non-ASM case
+      mappingLocations = "Default Reference"; // Replace with your specific non-ASM reference
+    }
+
+    return placementType + " | " + mappingLocations;
+  }
+  getPlacementType(aemId) {
+    if (aemId.includes("/dkp/")) {
+      return "DKP";
+    } else if (aemId.includes("/app/")) {
+      return "APP";
+    } else if (aemId.includes("/mbr/")) {
+      return "MBR";
+    } else {
+      return "Unknown Placement";
     }
   }
   determinePriority(leadId) {
@@ -107,35 +146,51 @@ let TargetMappingInstancesArray = [];
 const addLeadSubmission = (e) => {
   e.preventDefault();
 
+  let nameValue = document.getElementById("user-name").value;
   let aemIdValue = document.getElementById("aem-id").value.toLowerCase();
   let leadIdValue = document.getElementById("lead-id").value.toLowerCase();
   let objective = document.getElementById("objective-id").value.toLowerCase();
 
-  if (!aemIdValue || !leadIdValue || !objective) {
-    alert("Fill in the form");
+  if (!nameValue || !aemIdValue || !leadIdValue || !objective) {
+    alert("Remember to complete in all the fields.");
     return;
   }
-
   let asmLocations = [];
-  if (document.getElementById("location1").checked)
-    asmLocations.push("Account Overview | ASM | ASM1");
-  if (document.getElementById("location2").checked)
-    asmLocations.push("Account Overview | ASM | ASM2");
-  if (document.getElementById("location3").checked)
-    asmLocations.push("Account Overview | ASM | ASM3");
+  if (aemIdValue.includes("/asm/")) {
+    // ASM specific logic
 
-  // Create a LeadSubmission instance for each ASM location
-  asmLocations.forEach((location, index) => {
-    let audienceRefinementId = leadIdValue.split("_")[0] + "_p" + (index + 1); // Unique ID for audience refinement
+    if (document.getElementById("location1").checked)
+      asmLocations.push("Account Overview | ASM | ASM1");
+    if (document.getElementById("location2").checked)
+      asmLocations.push("Account Overview | ASM | ASM2");
+    if (document.getElementById("location3").checked)
+      asmLocations.push("Account Overview | ASM | ASM3");
+
+    asmLocations.forEach((location, index) => {
+      let audienceRefinementId = leadIdValue.split("_")[0] + "_p" + (index + 1);
+      let newLeadSubmission = new LeadSubmission(
+        nameValue,
+        aemIdValue,
+        leadIdValue,
+        objective,
+        [location], // Pass a single location as an array
+        audienceRefinementId
+      );
+      TargetMappingInstancesArray.push(newLeadSubmission);
+    });
+  } else {
+    // General case for other scenarios like /bpt/
+    let audienceRefinementId = leadIdValue.split("_")[0] + "_p1";
     let newLeadSubmission = new LeadSubmission(
+      nameValue,
       aemIdValue,
       leadIdValue,
       objective,
-      [location], // Pass only the current location
-      audienceRefinementId // Pass the unique audience refinement ID
+      [], // Pass an empty array for non-ASM cases
+      audienceRefinementId
     );
     TargetMappingInstancesArray.push(newLeadSubmission);
-  });
+  }
 
   document.querySelector("#form-container form").reset();
   console.warn("Added", { TargetMappingInstancesArray });
