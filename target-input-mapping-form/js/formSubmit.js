@@ -176,6 +176,11 @@ const addLeadSubmission = (e) => {
   let objective = document.getElementById("objective-id").value.toLowerCase();
   let durationValue = document.getElementById("duration-id").value;
 
+  if (checkDeviceTypeMismatch()) {
+    // If there's a mismatch, do not proceed further
+    return;
+  }
+
   if (!nameValue || !aemIdValue || !leadIdValue || !objective) {
     alert("Remember to complete in all the fields.");
     return;
@@ -228,7 +233,38 @@ const addLeadSubmission = (e) => {
   asmOptions.style.display = "none";
 };
 
-document.getElementById("submit").addEventListener("click", addLeadSubmission);
+
+// Function to extract device type
+const getDeviceTypeFromId = (id) => {
+  if (id.includes("app")) {
+      return "app";
+  } else if (id.includes("dkp")) {
+      return "dkp";
+  } else if (id.includes("mbr")) {
+      return "mbr";
+  }
+  return null; // No device type found
+};
+
+// Function to check for device type mismatch
+const checkDeviceTypeMismatch = () => {
+  const aemIdValue = document.getElementById("aem-id").value.toLowerCase();
+  const leadIdValue = document.getElementById("lead-id").value.toLowerCase();
+
+  const aemDeviceType = getDeviceTypeFromId(aemIdValue);
+  const leadDeviceType = getDeviceTypeFromId(leadIdValue);
+
+  if (aemDeviceType && leadDeviceType && aemDeviceType !== leadDeviceType) {
+      alert(`Mismatch in device type: AEM ID is ${aemDeviceType} and Lead ID is ${leadDeviceType}`);
+      return true;
+  } else
+  return false;
+};
+
+// Event listeners for device type mismatch check
+document.getElementById("aem-id").addEventListener("input", checkDeviceTypeMismatch);
+document.getElementById("lead-id").addEventListener("input", checkDeviceTypeMismatch);
+
 
 //event listeners
 
