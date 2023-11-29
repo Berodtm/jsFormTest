@@ -255,7 +255,7 @@ const checkDeviceTypeMismatch = () => {
   const leadDeviceType = getDeviceTypeFromId(leadIdValue);
 
   if (aemDeviceType && leadDeviceType && aemDeviceType !== leadDeviceType) {
-      alert(`Mismatch in device type: AEM ID is ${aemDeviceType} and Lead ID is ${leadDeviceType}`);
+      alert(`Mismatch in device type: AEM ID is ${aemDeviceType} and Activity Name is ${leadDeviceType}`);
       return true;
   } else
   return false;
