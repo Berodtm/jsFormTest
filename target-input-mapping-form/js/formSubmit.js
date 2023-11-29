@@ -165,6 +165,38 @@ class LeadSubmission {
   }
 }
 
+const generateTable = () => {
+  let table = '<table><tr><th>Field</th><th>Value</th></tr>';
+
+  TargetMappingInstancesArray.forEach((submission, index) => {
+    // Check if it's the start of a new submission group
+    if (index === 0 || submission.leadId !== TargetMappingInstancesArray[index - 1].leadId) {
+      table += `<tr><td>Name</td><td>${submission.name}</td></tr>`;
+      table += `<tr><td>AEM ID</td><td>${submission.aemId}</td></tr>`;
+      table += `<tr><td>Activity Name</td><td>${submission.leadId}</td></tr>`;
+      table += `<tr><td>Objective</td><td>${submission.objective}</td></tr>`;
+      table += `<tr><td>Type</td><td>${submission.type}</td></tr>`;
+      table += `<tr><td>Placement</td><td>${submission.placement}</td></tr>`;
+      table += `<tr><td>Test Type</td><td>${submission.testType}</td></tr>`;
+      table += `<tr><td>Priority</td><td>${submission.priority}</td></tr>`;
+      table += `<tr><td>Tokenised</td><td>${submission.tokenised}</td></tr>`;
+      table += `<tr><td>Rated</td><td>${submission.rated}</td></tr>`;
+      table += `<tr><td>Measured By</td><td>${submission.measuredBy}</td></tr>`;
+      table += `<tr><td>Duration</td><td>${submission.duration}</td></tr>`;
+    }
+    // Add ASM-specific fields for each submission
+    table += `<tr><td>Mapping Location</td><td>${submission.mappingLocation}</td></tr>`;
+    table += `<tr><td>Audience Refinement</td><td>${submission.audienceRefinement}</td></tr>`;
+  });
+
+  table += '</table>';
+
+  // Append the new table to the existing content
+  document.getElementById('form-output').innerHTML += table;
+};
+
+
+
 let TargetMappingInstancesArray = [];
 
 const addLeadSubmission = (e) => {
@@ -185,16 +217,19 @@ const addLeadSubmission = (e) => {
     alert("Remember to complete in all the fields.");
     return;
   }
+  TargetMappingInstancesArray = []
   let asmLocations = [];
   if (aemIdValue.includes("/asm/")) {
     // ASM specific logic
-
-    if (document.getElementById("location1").checked)
+    if (document.getElementById("location1").checked) {
       asmLocations.push("APP|Account Overview|ASM|ASM1");
-    if (document.getElementById("location2").checked)
+    }
+    if (document.getElementById("location2").checked) {
       asmLocations.push("APP|Account Overview|ASM|ASM2");
-    if (document.getElementById("location3").checked)
+    }
+    if (document.getElementById("location3").checked) {
       asmLocations.push("APP|Account Overview|ASM|ASM3");
+    }
 
     asmLocations.forEach((location, index) => {
       let audienceRefinementId = leadIdValue.split("_")[0] + "_p" + (index + 1);
@@ -209,6 +244,9 @@ const addLeadSubmission = (e) => {
       );
       TargetMappingInstancesArray.push(newLeadSubmission);
     });
+
+    // Clear asmLocations after processing ASM logic
+    asmLocations = [];
   } else {
     // General case for other scenarios like /bpt/
     let audienceRefinementId = leadIdValue.split("_")[0] + "_p1";
@@ -224,24 +262,24 @@ const addLeadSubmission = (e) => {
     TargetMappingInstancesArray.push(newLeadSubmission);
   }
 
-  document.querySelector("#form-container form").reset();
+  document.getElementById("aem-id").value = "";
+  document.getElementById("lead-id").value = "";
   console.warn("Added", { TargetMappingInstancesArray });
-  let pre = document.querySelector("#form-output pre");
-  pre.textContent = "\n" + JSON.stringify(TargetMappingInstancesArray, "\t", 2);
 
   const asmOptions = document.getElementById("asm-options");
   asmOptions.style.display = "none";
+  generateTable();
 };
 
 
 // Function to extract device type
 const getDeviceTypeFromId = (id) => {
   if (id.includes("app")) {
-      return "app";
+    return "app";
   } else if (id.includes("dkp")) {
-      return "dkp";
+    return "dkp";
   } else if (id.includes("mbr")) {
-      return "mbr";
+    return "mbr";
   }
   return null; // No device type found
 };
@@ -255,16 +293,20 @@ const checkDeviceTypeMismatch = () => {
   const leadDeviceType = getDeviceTypeFromId(leadIdValue);
 
   if (aemDeviceType && leadDeviceType && aemDeviceType !== leadDeviceType) {
-      alert(`Mismatch in device type: AEM ID is ${aemDeviceType} and Activity Name is ${leadDeviceType}`);
-      return true;
-  } else
-  return false;
+    alert(
+      `Mismatch in device type: AEM ID is ${aemDeviceType} and Activity Name is ${leadDeviceType}`
+    );
+    return true;
+  } else return false;
 };
 
 // Event listeners for device type mismatch check
-document.getElementById("aem-id").addEventListener("input", checkDeviceTypeMismatch);
-document.getElementById("lead-id").addEventListener("input", checkDeviceTypeMismatch);
-
+document
+  .getElementById("aem-id")
+  .addEventListener("input", checkDeviceTypeMismatch);
+document
+  .getElementById("lead-id")
+  .addEventListener("input", checkDeviceTypeMismatch);
 
 //event listeners
 
